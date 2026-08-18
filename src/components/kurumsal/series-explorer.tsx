@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, ChevronLeft, ChevronRight, Play } from 'lucide-react'
-import { CDN_PATHS, CLAIM_DISCLAIMER, PRODUCTS } from '#/lib/brand'
+import { CDN_PATHS, CLAIM_DISCLAIMER } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
 import { AddToCart } from '#/components/product/add-to-cart'
@@ -21,10 +22,11 @@ import {
  */
 export function SeriesExplorer() {
   const [active, setActive] = useState(0)
-  const product = PRODUCTS[active]
+  const { products } = useCatalog()
+  const product = products[active]
 
   const go = (dir: 1 | -1) =>
-    setActive((i) => (i + dir + PRODUCTS.length) % PRODUCTS.length)
+    setActive((i) => (i + dir + products.length) % products.length)
 
   return (
     <section className="relative overflow-hidden bg-[#0a0a12] py-20 md:py-28">
@@ -48,7 +50,7 @@ export function SeriesExplorer() {
           <div className="max-w-2xl">
             <KickerRuled>Seri Gezgini</KickerRuled>
             <SectionTitle dark className="mt-5">
-              Serideki {PRODUCTS.length} formül.
+              Serideki {products.length} formül.
             </SectionTitle>
             <SectionLead dark className="mt-4">
               Bir formül seçin: klibini izleyin, porsiyon başına ne içerdiğini
@@ -59,7 +61,7 @@ export function SeriesExplorer() {
           <div className="flex items-center gap-3">
             <span className="text-sm tabular-nums text-white/40">
               {String(active + 1).padStart(2, '0')} /{' '}
-              {String(PRODUCTS.length).padStart(2, '0')}
+              {String(products.length).padStart(2, '0')}
             </span>
             <button
               type="button"
@@ -86,7 +88,7 @@ export function SeriesExplorer() {
           role="tablist"
           aria-label="Formüller"
         >
-          {PRODUCTS.map((p, i) => {
+          {products.map((p, i) => {
             const isActive = i === active
             return (
               <button

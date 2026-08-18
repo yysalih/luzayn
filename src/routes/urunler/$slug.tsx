@@ -10,15 +10,10 @@ import {
   ShieldCheck,
   Truck,
 } from 'lucide-react'
-import {
-  CDN_PATHS,
-  CLAIM_DISCLAIMER,
-  COMMERCE,
-  PRODUCTS,
-  PRODUCT_BY_SLUG,
-  SITE,
-} from '#/lib/brand'
-import type { ProductMeta, ProductSlug } from '#/lib/brand'
+import { CDN_PATHS, CLAIM_DISCLAIMER, SITE } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
+import { loadCatalog } from '#/lib/cms'
+import type { ProductMeta } from '#/lib/brand'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
 import { useShopifyCheckout } from '#/hooks/use-shopify-checkout'
@@ -32,9 +27,17 @@ import {
 import { NotFoundPage } from '#/components/layout/error-states'
 
 export const Route = createFileRoute('/urunler/$slug')({
-  loader: ({ params }) => {
-    const product = PRODUCT_BY_SLUG[params.slug as ProductSlug]
+  loader: async ({ params }) => {
+    // Katalog kök route'ta da okunuyor; cms.ts'in önbelleği sayesinde bu
+    // ikinci bir sorgu açmıyor.
+    const catalog = await loadCatalog()
+    const product = catalog.bySlug[params.slug]
+
+    // Ürün taslağa alındıysa veya silindiyse RLS onu hiç döndürmez, yani
+    // burada 404 veriyoruz. Fiyatı belirsiz bir ürünü göstermektense adresi
+    // kırmak doğru: yanlış fiyat, olmayan sayfadan kötüdür.
     if (!product) throw notFound()
+
     return { product }
   },
   head: ({ loaderData }) => {
@@ -84,6 +87,7 @@ function TopSection({
   qty: number
   setQty: (n: number) => void
 }) {
+  const { commerce } = useCatalog()
   const { checkout, pending, error } = useShopifyCheckout()
 
   // Sepetten bağımsız, yalnızca bu ürünle doğrudan Shopify checkout'u
@@ -184,7 +188,7 @@ function TopSection({
               />
               <TrustBadge
                 icon={<Package className="h-4 w-4" />}
-                title={`${COMMERCE.returnDays} gün iade`}
+                title={`${commerce.returnDays} gün iade`}
                 detail="Ambalajı açılmamış ürünlerde"
               />
             </div>
@@ -493,7 +497,8 @@ function HighlightsSection({ product }: { product: ProductMeta }) {
 /* ---------------------------------------------------------------- */
 
 function CrossSell({ current }: { current: ProductMeta }) {
-  const others = PRODUCTS.filter((p) => p.slug !== current.slug).slice(0, 4)
+  const { products } = useCatalog()
+  const others = products.filter((p) => p.slug !== current.slug).slice(0, 4)
 
   return (
     <section className="bg-background py-16 pb-28 md:py-24 md:pb-24">

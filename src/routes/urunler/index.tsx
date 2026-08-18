@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
-import { CDN_PATHS, CLAIM_DISCLAIMER, PRODUCTS, SITE } from '#/lib/brand'
+import { CDN_PATHS, CLAIM_DISCLAIMER, SITE } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import type { ProductMeta } from '#/lib/brand'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
@@ -23,6 +24,8 @@ export const Route = createFileRoute('/urunler/')({
 })
 
 function ProductsPage() {
+  const { products } = useCatalog()
+
   return (
     <div className="bg-[#0a0a12]">
       <PageHero
@@ -34,7 +37,7 @@ function ProductsPage() {
       <section className="pb-24 md:pb-32">
         <div className="container mx-auto px-4">
           <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {PRODUCTS.map((product, i) => (
+            {products.map((product, i) => (
               <ProductCard key={product.slug} product={product} index={i} />
             ))}
           </div>

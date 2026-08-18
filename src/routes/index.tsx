@@ -11,8 +11,26 @@ import { EvidenceCarousel } from '#/components/home/evidence-carousel'
 import { IngredientShowcase } from '#/components/home/ingredient-showcase'
 import { FaqSection } from '#/components/home/faq-section'
 import { BlogPreview } from '#/components/home/blog-preview'
+import { loadBlogPosts, loadCatalog, loadFaq, loadHome } from '#/lib/cms'
 
 export const Route = createFileRoute('/')({
+  /**
+   * Vitrin, SSS ve blog önizlemesi burada okunur.
+   *
+   * loadCatalog() kök route'ta da çağrılıyor ama ikinci bir sorgu açmıyor:
+   * cms.ts kısa ömürlü bir önbellek tutuyor ve aynı promise'i döndürüyor.
+   * Vitrin tabloları ürünün rengini, kapağını ve videosunu katalogdan
+   * okuduğu için katalog burada da gerekli.
+   */
+  loader: async () => {
+    const catalog = await loadCatalog()
+    const [home, faq, posts] = await Promise.all([
+      loadHome(catalog),
+      loadFaq(),
+      loadBlogPosts(),
+    ])
+    return { home, faq, posts }
+  },
   component: HomePage,
 })
 
@@ -21,20 +39,26 @@ export const Route = createFileRoute('/')({
  * Koyu ve açık bölümler nöbetleşir; ritim scroll'da hissedilir.
  */
 function HomePage() {
+  const { home, faq, posts } = Route.useLoaderData()
+
+  // Ürün verisine ihtiyaç duyan bölümler (ray, set, bileşen vitrini) katalogu
+  // kendileri bağlamdan okuyor; burada yalnızca sayfaya özel içerik aşağı
+  // geçiriliyor. Prop olarak vermek bileşenleri ana sayfaya çivilemiyor —
+  // FaqSection başka bir listeyle başka bir sayfada da çağrılabilir.
   return (
     <>
-      <Hero />
-      <TagStrip />
+      <Hero slides={home.heroSlides} />
+      <TagStrip tags={home.heroTags} />
       <ProductRail />
-      <VideoWall />
+      <VideoWall slugs={home.videoWallSlugs} />
       <BundleSection />
-      <Philosophy />
+      <Philosophy content={home.philosophy} />
       <Banner />
       <TrustSection />
-      <EvidenceCarousel />
+      <EvidenceCarousel stats={home.evidenceStats} />
       <IngredientShowcase />
-      <FaqSection />
-      <BlogPreview />
+      <FaqSection items={faq} />
+      <BlogPreview posts={posts} />
     </>
   )
 }

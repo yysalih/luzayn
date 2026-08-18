@@ -1,27 +1,31 @@
-import { PHILOSOPHY } from '#/data/content'
+import type { Philosophy as PhilosophyContent } from '#/data/content'
 import {
   KickerPill,
   SectionLead,
   SectionTitle,
 } from '#/components/ui/typography'
 
-export function Philosophy() {
+export function Philosophy({ content }: { content: PhilosophyContent | null }) {
+  // Panelden bu bölüm hiç doldurulmamışsa boş başlık basmak yerine
+  // bölümü tamamen atlıyoruz.
+  if (!content) return null
+
   return (
     <section className="bg-background py-20 md:py-28">
       <div className="container mx-auto px-4">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <KickerPill>{PHILOSOPHY.kicker}</KickerPill>
+            <KickerPill>{content.kicker}</KickerPill>
             <SectionTitle className="mt-5 max-w-md text-4xl md:text-5xl">
-              {PHILOSOPHY.title}
+              {content.title}
             </SectionTitle>
             <SectionLead className="mt-5 max-w-md">
-              {PHILOSOPHY.intro}
+              {content.intro}
             </SectionLead>
           </div>
 
           <ul className="grid gap-px overflow-hidden rounded-3xl bg-border sm:grid-cols-2">
-            {PHILOSOPHY.values.map((value, i) => (
+            {content.values.map((value, i) => (
               <li
                 key={value.title}
                 className="bg-card p-7 animate-[showcase-rise-in_0.5s_ease-out_both] md:p-8"

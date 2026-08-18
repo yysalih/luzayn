@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { CLAIM_DISCLAIMER, PRODUCT_BY_SLUG } from '#/lib/brand'
-import { EVIDENCE_STATS } from '#/data/content'
+import { CLAIM_DISCLAIMER } from '#/lib/brand'
 import type { EvidenceStat } from '#/data/content'
+import { useCatalog } from '#/lib/catalog-context'
 import {
   Disclaimer,
   KickerRuled,
@@ -18,7 +18,8 @@ const AUTO_MS = 5000
  * verisinden hesaplanır — doğrulanamayan hiçbir veri buraya girmez.
  * Kendi kendine ilerler; ok, dot ve swipe ile her an müdahale edilebilir.
  */
-export function EvidenceCarousel() {
+export function EvidenceCarousel({ stats }: { stats: Array<EvidenceStat> }) {
+  const { bySlug } = useCatalog()
   const railRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
@@ -38,7 +39,7 @@ export function EvidenceCarousel() {
   useEffect(() => {
     if (paused) return
     const t = setTimeout(
-      () => scrollTo((active + 1) % EVIDENCE_STATS.length),
+      () => scrollTo((active + 1) % stats.length),
       AUTO_MS,
     )
     return () => clearTimeout(t)
@@ -107,7 +108,7 @@ export function EvidenceCarousel() {
               label="Önceki"
               onClick={() =>
                 scrollTo(
-                  (active - 1 + EVIDENCE_STATS.length) % EVIDENCE_STATS.length,
+                  (active - 1 + stats.length) % stats.length,
                 )
               }
             >
@@ -115,7 +116,7 @@ export function EvidenceCarousel() {
             </NavButton>
             <NavButton
               label="Sonraki"
-              onClick={() => scrollTo((active + 1) % EVIDENCE_STATS.length)}
+              onClick={() => scrollTo((active + 1) % stats.length)}
             >
               <ChevronRight className="h-5 w-5" />
             </NavButton>
@@ -126,13 +127,13 @@ export function EvidenceCarousel() {
           ref={railRef}
           className="no-scrollbar mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
         >
-          {EVIDENCE_STATS.map((stat, i) => (
+          {stats.map((stat, i) => (
             <StatCard key={`${stat.slug}-${i}`} stat={stat} index={i} />
           ))}
         </div>
 
         <div className="mt-8 flex items-center gap-2">
-          {EVIDENCE_STATS.map((stat, i) => (
+          {stats.map((stat, i) => (
             <button
               key={`dot-${stat.slug}-${i}`}
               type="button"
@@ -145,7 +146,7 @@ export function EvidenceCarousel() {
               )}
               style={
                 i === active
-                  ? { backgroundColor: PRODUCT_BY_SLUG[stat.slug].accent }
+                  ? { backgroundColor: bySlug[stat.slug]?.accent }
                   : undefined
               }
             />
@@ -182,7 +183,13 @@ function NavButton({
 }
 
 function StatCard({ stat, index }: { stat: EvidenceStat; index: number }) {
-  const product = PRODUCT_BY_SLUG[stat.slug]
+  const { bySlug } = useCatalog()
+  const product = bySlug[stat.slug]
+
+  // Kartın rengi tamamen üründen geliyor. loadHome() ürünü olmayan
+  // satırları zaten düşürüyor; buradaki kontrol katalog boş döndüğünde
+  // (okuma hatası) undefined üzerinden okumayı engelliyor.
+  if (!product) return null
 
   return (
     <article

@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
-import { CDN_PATHS, PRODUCTS } from '#/lib/brand'
+import { CDN_PATHS } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import type { ProductMeta } from '#/lib/brand'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
@@ -9,6 +10,8 @@ import { SectionTitle } from '#/components/ui/typography'
 import { AddToCart } from '#/components/product/add-to-cart'
 
 export function ProductRail() {
+  const { products } = useCatalog()
+
   return (
     <section className="bg-background py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -34,7 +37,7 @@ export function ProductRail() {
          * kaydırıp ilk kartı sola yapıştırıyordu.
          */}
         <div className="no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 py-3 md:mt-12">
-          {PRODUCTS.map((product, index) => (
+          {products.map((product, index) => (
             <RailCard key={product.slug} product={product} index={index} />
           ))}
         </div>

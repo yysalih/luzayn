@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
-import { BLOG_POSTS, formatBlogDate } from '#/data/content'
+import { formatBlogDate } from '#/data/content'
+import type { BlogPost } from '#/data/content'
 import { mediaUrl } from '#/lib/media'
 import { KickerPill, SectionTitle } from '#/components/ui/typography'
 
@@ -8,8 +9,8 @@ import { KickerPill, SectionTitle } from '#/components/ui/typography'
  * Sade editoryal önizleme: çıplak görsel, üstünde rozet YOK.
  * Kategori metni accent renginde, kart çerçevesi yok.
  */
-export function BlogPreview() {
-  const posts = BLOG_POSTS.slice(0, 3)
+export function BlogPreview({ posts: all }: { posts: Array<BlogPost> }) {
+  const posts = all.slice(0, 3)
 
   return (
     <section className="bg-background py-20 md:py-28">

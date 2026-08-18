@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { CDN_PATHS, CLAIM_DISCLAIMER, PRODUCTS } from '#/lib/brand'
+import { CDN_PATHS, CLAIM_DISCLAIMER } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import { mediaUrl } from '#/lib/media'
 import {
   Disclaimer,
@@ -16,11 +17,13 @@ import {
  * remount edilip fade-in ile girer.
  */
 export function IngredientShowcase() {
+  const { products } = useCatalog()
+
   const [active, setActive] = useState(0)
-  const product = PRODUCTS[active]
+  const product = products[active]
 
   const go = (dir: 1 | -1) =>
-    setActive((i) => (i + dir + PRODUCTS.length) % PRODUCTS.length)
+    setActive((i) => (i + dir + products.length) % products.length)
 
   return (
     <section className="relative overflow-hidden bg-[#0a0a12] py-20 md:py-28">
@@ -45,7 +48,7 @@ export function IngredientShowcase() {
 
         {/* Chip satırı */}
         <div className="no-scrollbar mt-10 flex gap-2 overflow-x-auto pb-1">
-          {PRODUCTS.map((p, i) => {
+          {products.map((p, i) => {
             const isActive = i === active
             return (
               <button
@@ -163,7 +166,7 @@ export function IngredientShowcase() {
                 <div className="flex items-center gap-3">
                   <span className="text-sm tabular-nums text-white/40">
                     {String(active + 1).padStart(2, '0')} /{' '}
-                    {String(PRODUCTS.length).padStart(2, '0')}
+                    {String(products.length).padStart(2, '0')}
                   </span>
                   <button
                     type="button"

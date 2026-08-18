@@ -115,7 +115,42 @@ export interface Catalog {
 const PRODUCT_COLUMNS =
   'slug, name, short_name, category, tagline, subtitle, accent, price, unit, form, serving_size, motto, description, usage_text, storage_text, features, key_ingredients, composition, highlights, claim_basis, shopify_variant_id, cover_url, image_url, featured, in_stock, sort_order'
 
-export async function loadCatalog(): Promise<Catalog> {
+/**
+ * Katalog önbelleği.
+ *
+ * Kök route ve sayfa loader'ları aynı katalogu istiyor. Önbellek olmadan tek
+ * bir sayfa yüklemesi aynı sekiz satırı iki kez çekerdi.
+ *
+ * DEĞER DEĞİL PROMISE saklanıyor: iki loader aynı anda çağırdığında ikisi de
+ * aynı isteği bekler, iki paralel sorgu açılmaz. Bu, ilk isteğin en sık
+ * karşılaşılan durum olduğu SSR'da fark yaratır.
+ *
+ * Hata durumunda önbellek TEMİZLENİR — başarısız bir okumayı 30 saniye
+ * boyunca tekrar tekrar döndürmek, geçici bir kesintiyi kalıcı hataya
+ * çevirirdi.
+ *
+ * Süre panelde yapılan bir değişikliğin sitede görünmesini en fazla bu kadar
+ * geciktirir. Yalnızca yayınlanmış içerik önbelleklendiği için kullanıcıya
+ * özel veri sızma ihtimali yok.
+ */
+const CATALOG_TTL_MS = 30_000
+let catalogCache: { at: number; promise: Promise<Catalog> } | null = null
+
+export function loadCatalog(): Promise<Catalog> {
+  const now = Date.now()
+  if (catalogCache && now - catalogCache.at < CATALOG_TTL_MS)
+    return catalogCache.promise
+
+  const promise = fetchCatalog().catch((err) => {
+    catalogCache = null
+    throw err
+  })
+
+  catalogCache = { at: now, promise }
+  return promise
+}
+
+async function fetchCatalog(): Promise<Catalog> {
   const db = requireSupabase()
 
   // İki sorgu paralel: ürünler ve ticari ayarlar birbirine bağlı değil.
@@ -152,6 +187,25 @@ export async function loadCatalog(): Promise<Catalog> {
       discountRate: Number(s?.bundle_discount_rate ?? 0),
     },
   }
+}
+
+/**
+ * Set teklifinin fiyat matematiği.
+ *
+ * brand.ts'teki bundleTotals()'un katalog alan hali. Setteki bir ürün
+ * yayından kaldırılmışsa toplamdan da düşer — aksi halde sepete
+ * eklenemeyecek bir ürünün fiyatı toplamda görünürdü.
+ *
+ * discountRate 0 olduğu sürece saving 0 kalır ve site üstü çizili fiyat
+ * göstermez; uydurma çapa fiyat kurulmaz.
+ */
+export function bundleTotals(catalog: Catalog) {
+  const items = catalog.bundle.slugs.flatMap(
+    (slug) => catalog.bySlug[slug] ?? [],
+  )
+  const listTotal = items.reduce((sum, p) => sum + p.price, 0)
+  const total = Math.round(listTotal * (1 - catalog.bundle.discountRate))
+  return { items, listTotal, total, saving: listTotal - total }
 }
 
 /* ------------------------------------------------------------------ */

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowUpRight } from 'lucide-react'
-import { CDN_PATHS, PRODUCT_BY_SLUG } from '#/lib/brand'
+import { CDN_PATHS } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import type { ProductMeta } from '#/lib/brand'
-import { VIDEO_WALL_SLUGS } from '#/data/content'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
 import {
@@ -17,8 +17,11 @@ import {
  * Videolar sessizdir (ürün render'ları), bu yüzden ses kontrolü yok;
  * ancak ekran dışındayken duraklatılır (boşuna decode etmesin).
  */
-export function VideoWall() {
-  const products = VIDEO_WALL_SLUGS.map((slug) => PRODUCT_BY_SLUG[slug])
+export function VideoWall({ slugs }: { slugs: Array<string> }) {
+  const { bySlug } = useCatalog()
+  // Ürünü taslağa alınmış bir satır katalogda yok; o kartı basmak yerine
+  // düşürüyoruz (aksi halde undefined üzerinden okuma olurdu).
+  const products = slugs.flatMap((slug) => bySlug[slug] ?? [])
 
   return (
     <section className="relative overflow-hidden bg-[#0a0a12] py-20 md:py-28">

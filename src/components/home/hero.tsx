@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { HERO_SLIDES } from '#/data/content'
 import type { HeroSlide } from '#/data/content'
-import { PRODUCT_BY_SLUG, SITE } from '#/lib/brand'
+import { SITE } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import { mediaUrl } from '#/lib/media'
 import { useIsMobile } from '#/hooks/use-is-mobile'
 import { cn } from '#/lib/utils'
@@ -11,7 +11,6 @@ import { cn } from '#/lib/utils'
 const AUTO_MS = 6500
 const SLIDE_MS = 1200
 const SWIPE_THRESHOLD = 40
-const COUNT = HERO_SLIDES.length
 
 /**
  * Tam ekran video hero — tek slayt, yavaşça sola kayarak ilerler, sonsuz döner.
@@ -23,7 +22,12 @@ const COUNT = HERO_SLIDES.length
  * ulaştığında görünen slayt zaten baştaki slaytla aynı olduğundan, geçiş
  * biter bitmez animasyonsuz 0'a snap ediyoruz — kullanıcı geri sarma görmez.
  */
-export function Hero() {
+export function Hero({ slides }: { slides: Array<HeroSlide> }) {
+  // Slayt sayısı artık veritabanından geliyor; modül seviyesinde sabit
+  // olamaz. 0 olursa index % COUNT NaN üretir, o yüzden aşağıda erken çıkış
+  // var — ama hook'lardan SONRA, sıraları bozulmasın diye.
+  const COUNT = slides.length
+  const { bySlug } = useCatalog()
   const [index, setIndex] = useState(0)
   const [animate, setAnimate] = useState(true)
   const [pendingPrev, setPendingPrev] = useState(false)
@@ -100,8 +104,12 @@ export function Hero() {
     return () => clearTimeout(t)
   }, [index, paused, next])
 
-  const active = index % COUNT
-  const current = HERO_SLIDES[active]
+  const active = COUNT > 0 ? index % COUNT : 0
+  const current = slides[active]
+
+  // Yayında hiç slayt yoksa hero'yu hiç basmıyoruz: boş siyah bir blok
+  // arıza gibi görünürdü.
+  if (!current) return null
 
   return (
     <section
@@ -132,7 +140,7 @@ export function Hero() {
             : 'none',
         }}
       >
-        {[...HERO_SLIDES, ...HERO_SLIDES].map((slide, i) => (
+        {[...slides, ...slides].map((slide, i) => (
           <HeroSlideView
             key={`${slide.id}-${i}`}
             slide={slide}
@@ -147,12 +155,12 @@ export function Hero() {
       {/* Kontroller — şeritle birlikte kaymasın diye şeridin dışında */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20">
         <div className="container mx-auto flex items-center gap-2 px-4 pb-8">
-          {HERO_SLIDES.map((s, i) => (
+          {slides.map((s, i) => (
             <button
               key={s.id}
               type="button"
               onClick={() => setIndex(i)}
-              aria-label={PRODUCT_BY_SLUG[s.id].shortName}
+              aria-label={bySlug[s.id]?.shortName ?? s.title}
               aria-current={i === active}
               className={cn(
                 'pointer-events-auto h-1.5 rounded-full transition-all',
@@ -196,7 +204,8 @@ export function Hero() {
 
 /** Tek tam ekran slayt: video + çift gradient + alt sol içerik */
 function HeroSlideView({ slide, live }: { slide: HeroSlide; live: boolean }) {
-  const product = PRODUCT_BY_SLUG[slide.id]
+  const { bySlug } = useCatalog()
+  const product = bySlug[slide.id]
   const isMobile = useIsMobile()
   const src = isMobile ? slide.videoMobile : slide.videoDesktop
 

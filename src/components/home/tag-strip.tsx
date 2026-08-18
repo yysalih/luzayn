@@ -1,4 +1,4 @@
-import { HERO_TAGS } from '#/data/content'
+import type { HeroTag } from '#/data/content'
 
 /**
  * İnce marka şeridi — hero'nun altında ayrı bir bant.
@@ -10,8 +10,9 @@ import { HERO_TAGS } from '#/data/content'
  * scrollLeft yaklaşımı, kaydırılabilir alan içeriğin yarısından kısa
  * olduğunda sona yapışıp ileri-geri titriyordu.
  */
-export function TagStrip() {
-  const track = [...HERO_TAGS, ...HERO_TAGS]
+export function TagStrip({ tags }: { tags: Array<HeroTag> }) {
+  // Şerit sonsuz aksın diye liste iki kez basılıyor.
+  const track = [...tags, ...tags]
 
   return (
     <section className="border-b border-white/[0.06] bg-[#0a0a12] py-5">

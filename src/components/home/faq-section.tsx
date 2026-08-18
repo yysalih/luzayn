@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 import { CDN_PATHS } from '#/lib/brand'
-import { FAQ } from '#/data/content'
+import type { FaqItem } from '#/data/content'
 import { mediaUrl } from '#/lib/media'
 import { FaqAccordion } from '#/components/shared/faq-accordion'
 import {
@@ -10,7 +10,7 @@ import {
   SectionTitle,
 } from '#/components/ui/typography'
 
-export function FaqSection() {
+export function FaqSection({ items }: { items: Array<FaqItem> }) {
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
       <img
@@ -45,7 +45,7 @@ export function FaqSection() {
             </Link>
           </div>
 
-          <FaqAccordion items={FAQ} dark />
+          <FaqAccordion items={items} dark />
         </div>
       </div>
     </section>

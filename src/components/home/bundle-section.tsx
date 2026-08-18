@@ -1,5 +1,7 @@
 import { Check, ShoppingBag, Truck } from 'lucide-react'
-import { BUNDLE, CDN_PATHS, COMMERCE, bundleTotals } from '#/lib/brand'
+import { CDN_PATHS } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
+import { bundleTotals } from '#/lib/cms'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
 import { useCart, useCartHydrated } from '#/store/cart'
@@ -15,11 +17,17 @@ import {
  * BUNDLE.discountRate 0 olduğu sürece indirim satırı hiç render edilmez.
  */
 export function BundleSection() {
-  const { items, listTotal, total, saving } = bundleTotals()
+  const catalog = useCatalog()
+  const { bundle, commerce } = catalog
+  const { items, listTotal, total, saving } = bundleTotals(catalog)
   const hydrated = useCartHydrated()
   const add = useCart((s) => s.add)
-  const threshold = COMMERCE.freeShippingThreshold
+  const threshold = commerce.freeShippingThreshold
   const freeShipping = threshold !== null && total >= threshold
+
+  // Setteki ürünlerin hiçbiri yayında değilse bölüm anlamsız: boş liste
+  // ve 0 TL gösterirdi.
+  if (items.length === 0) return null
 
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
@@ -38,9 +46,9 @@ export function BundleSection() {
       <div className="container relative mx-auto px-4">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
-            <KickerRuled>{BUNDLE.tagline}</KickerRuled>
+            <KickerRuled>{bundle.tagline}</KickerRuled>
             <SectionTitle dark className="mt-5">
-              {BUNDLE.name}
+              {bundle.name}
             </SectionTitle>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-white/60 md:text-lg">
               Serinin vitamin ve mineral tarafını tek sepette toplayan set:

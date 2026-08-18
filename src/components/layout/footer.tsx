@@ -1,10 +1,12 @@
 import { Link } from '@tanstack/react-router'
 import { Mail, MapPin, Phone } from 'lucide-react'
 import { Logo } from './logo'
-import { CERTIFICATIONS, PRODUCTS, SITE } from '#/lib/brand'
+import { CERTIFICATIONS, SITE } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import { LEGAL_PAGES } from '#/data/legal'
 
 export function Footer() {
+  const { products } = useCatalog()
   const year = new Date().getFullYear()
 
   return (
@@ -60,7 +62,7 @@ export function Footer() {
           </div>
 
           <FooterColumn title="Ürünler">
-            {PRODUCTS.map((p) => (
+            {products.map((p) => (
               <li key={p.slug}>
                 <Link
                   to="/urunler/$slug"

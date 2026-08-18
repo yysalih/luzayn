@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { ChevronDown, Menu, ShoppingBag, X } from 'lucide-react'
 import { Logo } from './logo'
-import { CDN_PATHS, PRODUCTS } from '#/lib/brand'
+import { CDN_PATHS } from '#/lib/brand'
+import type { ProductMeta } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import { mediaUrl } from '#/lib/media'
 import { useScrolled } from '#/hooks/use-scrolled'
 import { resolveCart, useCart, useCartHydrated } from '#/store/cart'
@@ -24,25 +26,34 @@ type NavItem = {
   children?: Array<NavChild>
 }
 
-const NAV: Array<NavItem> = [
-  {
-    label: 'Ürünler',
-    to: '/urunler',
-    childPattern: '/urunler/$slug',
-    children: PRODUCTS.map((p) => ({
-      label: p.shortName,
-      slug: p.slug,
-      accent: p.accent,
-      hint: p.subtitle,
-      image: CDN_PATHS.cover(p.slug),
-    })),
-  },
-  { label: 'Kurumsal', to: '/kurumsal' },
-  { label: 'Blog', to: '/blog' },
-  { label: 'İletişim', to: '/iletisim' },
-]
+/**
+ * Menü artık katalogdan kuruluyor, o yüzden modül seviyesinde sabit olamaz:
+ * ürünler istek anında veritabanından geliyor.
+ */
+function buildNav(products: Array<ProductMeta>): Array<NavItem> {
+  return [
+    {
+      label: 'Ürünler',
+      to: '/urunler',
+      childPattern: '/urunler/$slug',
+      children: products.map((p) => ({
+        label: p.shortName,
+        slug: p.slug,
+        accent: p.accent,
+        hint: p.subtitle,
+        image: p.cover ?? CDN_PATHS.cover(p.slug),
+      })),
+    },
+    { label: 'Kurumsal', to: '/kurumsal' },
+    { label: 'Blog', to: '/blog' },
+    { label: 'İletişim', to: '/iletisim' },
+  ]
+}
 
 export function Header() {
+  const { products } = useCatalog()
+  const NAV = useMemo(() => buildNav(products), [products])
+
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const isHome = pathname === '/'
   const scrolled = useScrolled(80)

@@ -1,16 +1,24 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 import { CLAIM_DISCLAIMER, SITE } from '#/lib/brand'
-import { BLOG_BY_SLUG, BLOG_POSTS, formatBlogDate } from '#/data/content'
+import { formatBlogDate } from '#/data/content'
+import { loadBlogPost, loadBlogPosts } from '#/lib/cms'
 import { mediaUrl } from '#/lib/media'
 import { Disclaimer } from '#/components/ui/typography'
 import { NotFoundPage } from '#/components/layout/error-states'
 
 export const Route = createFileRoute('/blog/$slug')({
-  loader: ({ params }) => {
-    const post = BLOG_BY_SLUG[params.slug]
+  loader: async ({ params }) => {
+    // Yazı ve "diğer yazılar" listesi paralel okunuyor; ikisi birbirine
+    // bağlı değil.
+    const [post, all] = await Promise.all([
+      loadBlogPost(params.slug),
+      loadBlogPosts(),
+    ])
+
+    // Taslağa alınan yazıyı RLS zaten döndürmez; adres 404 olur.
     if (!post) throw notFound()
-    return { post }
+    return { post, all }
   },
   head: ({ loaderData }) => {
     const post = loaderData?.post
@@ -31,8 +39,8 @@ export const Route = createFileRoute('/blog/$slug')({
 })
 
 function BlogPostPage() {
-  const { post } = Route.useLoaderData()
-  const others = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 3)
+  const { post, all } = Route.useLoaderData()
+  const others = all.filter((p) => p.slug !== post.slug).slice(0, 3)
 
   return (
     <>

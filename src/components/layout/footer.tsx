@@ -3,7 +3,7 @@ import { Mail, MapPin, Phone } from 'lucide-react'
 import { Logo } from './logo'
 import { CERTIFICATIONS, SITE } from '#/lib/brand'
 import { useCatalog } from '#/lib/catalog-context'
-import { LEGAL_PAGES } from '#/data/legal'
+import { LEGAL_NAV } from '#/data/legal'
 
 export function Footer() {
   const { products } = useCatalog()
@@ -95,7 +95,7 @@ export function Footer() {
           </FooterColumn>
 
           <FooterColumn title="Yasal">
-            {LEGAL_PAGES.map((page) => (
+            {LEGAL_NAV.map((page) => (
               <li key={page.slug}>
                 <Link
                   to="/yasal/$slug"

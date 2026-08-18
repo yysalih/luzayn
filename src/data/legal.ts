@@ -1,4 +1,5 @@
-import { COMMERCE, SITE } from '#/lib/brand'
+import { SITE } from '#/lib/brand'
+import type { CommerceConfig } from '#/lib/brand'
 
 /**
  * Yasal sayfalar tek bir şablondan (LegalPageLayout) render edilir.
@@ -31,7 +32,16 @@ const SELLER_BLOCK = [
     : null,
 ].filter((line): line is string => line !== null)
 
-export const LEGAL_PAGES: Array<LegalPage> = [
+/**
+ * Yasal sayfa metinleri.
+ *
+ * Kargo bedeli ve iade süresi metnin İÇİNDE geçiyor ve bu değerler artık
+ * yönetim panelinden yönetiliyor. Bu yüzden sayfalar modül seviyesinde sabit
+ * olamaz: ticari ayar parametre olarak geliyor ki mesafeli satış sözleşmesi
+ * ile sepetteki rakam ayrışmasın.
+ */
+export function buildLegalPages(commerce: CommerceConfig): Array<LegalPage> {
+  return [
   {
     slug: 'gizlilik',
     title: 'Gizlilik Politikası',
@@ -140,14 +150,14 @@ export const LEGAL_PAGES: Array<LegalPage> = [
       {
         heading: 'Teslimat',
         body: [
-          `Kargo ücreti, seçilen teslimat yöntemine göre ödeme adımında hesaplanır ve sipariş özetinde gösterilir. Yurt içi standart teslimat ücreti ${COMMERCE.standardShippingFee} TL'dir.`,
+          `Kargo ücreti, seçilen teslimat yöntemine göre ödeme adımında hesaplanır ve sipariş özetinde gösterilir. Yurt içi standart teslimat ücreti ${commerce.standardShippingFee} TL'dir.`,
           'Ürün, sipariş onayının ardından anlaşmalı kargo firmasına teslim edilir. Teslimat süresi kargo firmasının bölgeye göre değişen takvimine bağlıdır.',
         ],
       },
       {
         heading: 'Cayma hakkı',
         body: [
-          `Alıcı, teslimattan itibaren ${COMMERCE.returnDays} gün içinde hiçbir gerekçe göstermeksizin cayma hakkını kullanabilir.`,
+          `Alıcı, teslimattan itibaren ${commerce.returnDays} gün içinde hiçbir gerekçe göstermeksizin cayma hakkını kullanabilir.`,
           'Cayma hakkı, ambalajı açılmamış, kullanılmamış ve yeniden satılabilir durumdaki ürünler için geçerlidir.',
           'Mesafeli Sözleşmeler Yönetmeliği’nin 15. maddesi uyarınca, tesliminden sonra ambalajı açılmış olan ve sağlık ile hijyen açısından iadesi uygun olmayan ürünlerde cayma hakkı kullanılamaz.',
           `Cayma bildirimi ${SITE.email} adresine yapılabilir.`,
@@ -236,7 +246,7 @@ export const LEGAL_PAGES: Array<LegalPage> = [
       {
         heading: 'Kargo ücreti',
         body: [
-          `Yurt içi standart teslimat ücreti ${COMMERCE.standardShippingFee} TL'dir. Hızlı teslimat seçeneği farklı ücretlendirilir.`,
+          `Yurt içi standart teslimat ücreti ${commerce.standardShippingFee} TL'dir. Hızlı teslimat seçeneği farklı ücretlendirilir.`,
           'Geçerli kargo ücreti, teslimat adresiniz ve seçtiğiniz yöntem belirlendikten sonra ödeme adımında gösterilir.',
         ],
       },
@@ -250,7 +260,7 @@ export const LEGAL_PAGES: Array<LegalPage> = [
       {
         heading: 'İade',
         body: [
-          `Ambalajı açılmamış ürünler için ${COMMERCE.returnDays} gün içinde iade hakkınız vardır. Ambalajı açılmış takviye edici gıdalar, hijyen gerekçesiyle iade kapsamı dışındadır.`,
+          `Ambalajı açılmamış ürünler için ${commerce.returnDays} gün içinde iade hakkınız vardır. Ambalajı açılmış takviye edici gıdalar, hijyen gerekçesiyle iade kapsamı dışındadır.`,
           `İade talebiniz için ${SITE.email} adresine sipariş numaranızla yazın.`,
         ],
       },
@@ -281,8 +291,22 @@ export const LEGAL_PAGES: Array<LegalPage> = [
       },
     ],
   },
-]
+  ]
+}
 
-export const LEGAL_BY_SLUG = Object.fromEntries(
-  LEGAL_PAGES.map((p) => [p.slug, p]),
-) as Record<string, LegalPage>
+/**
+ * Altbilgi ve site haritası yalnızca slug ile başlık istiyor; bunlar ticari
+ * ayara bağlı DEĞİL. Listeyi ayrıca elle yazmak yerine sayfaları bir kez
+ * kurup meta bilgisini ayıklıyoruz — iki ayrı liste tutmak, birine sayfa
+ * eklenip diğerine eklenmemesi demek olurdu.
+ *
+ * Buradaki değerler yalnızca atılacak metin için kullanılıyor.
+ */
+const NAV_ONLY: CommerceConfig = {
+  freeShippingThreshold: null,
+  standardShippingFee: 0,
+  returnDays: 0,
+}
+
+export const LEGAL_NAV: Array<{ slug: string; title: string }> =
+  buildLegalPages(NAV_ONLY).map(({ slug, title }) => ({ slug, title }))

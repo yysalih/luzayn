@@ -1,10 +1,12 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { SITE } from '#/lib/brand'
-import { BLOG_POSTS, formatBlogDate } from '#/data/content'
+import { formatBlogDate } from '#/data/content'
+import { loadBlogPosts } from '#/lib/cms'
 import { mediaUrl } from '#/lib/media'
 import { ProductRail } from '#/components/home/product-rail'
 
 export const Route = createFileRoute('/blog/')({
+  loader: () => loadBlogPosts(),
   head: () => ({
     meta: [
       { title: `Blog — ${SITE.name}` },
@@ -19,6 +21,8 @@ export const Route = createFileRoute('/blog/')({
 })
 
 function BlogIndexPage() {
+  const posts = Route.useLoaderData()
+
   return (
     <>
       {/* Blog listeleme açık temadır */}
@@ -40,7 +44,7 @@ function BlogIndexPage() {
       <section className="bg-background pb-20 md:pb-28">
         <div className="container mx-auto px-4">
           <div className="grid items-start gap-10 md:grid-cols-3 md:gap-8">
-            {BLOG_POSTS.map((post) => (
+            {posts.map((post) => (
               <article key={post.slug}>
                 <Link
                   to="/blog/$slug"

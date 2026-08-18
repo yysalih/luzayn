@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { SITE } from '#/lib/brand'
+import { recordContactMessage } from '#/lib/cms'
 
 /**
  * İletişim formu → kendi SMTP sunucunuz (DirectAdmin / cPanel).
@@ -82,6 +83,29 @@ function escapeHtml(value: string) {
 export const sendContactMessage = createServerFn({ method: 'POST' })
   .validator((data: unknown) => contactInputSchema.parse(data))
   .handler(async ({ data }): Promise<ContactResponse> => {
+    /**
+     * ÖNCE gelen kutusuna yaz, SONRA e-posta gönder.
+     *
+     * Sıra bilinçli: e-posta gidemezse (SMTP eksik, kota dolu, spam
+     * klasörü) mesaj yine de panelde durur. Tersi sırada, gönderim
+     * başarısız olduğunda mesaj hiçbir yerde kalmazdı — bugünkü davranış
+     * buydu.
+     *
+     * Yazma hatası kullanıcıya YANSITILMAZ: e-posta gitmiş olabilir ve
+     * "mesajınız gönderilemedi" demek yanlış olurdu. Sunucu günlüğüne
+     * düşürüp devam ediyoruz.
+     */
+    const recorded = await recordContactMessage({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      orderRef: data.orderRef,
+      subject: data.subject,
+      message: data.message,
+    })
+    if (!recorded.ok)
+      console.error('[iletişim] mesaj panele yazılamadı:', recorded.error)
+
     const config = getSmtpConfig()
 
     if (!config) {
@@ -89,6 +113,10 @@ export const sendContactMessage = createServerFn({ method: 'POST' })
         '[iletişim] SMTP_HOST / SMTP_USER / SMTP_PASS eksik. Gelen mesaj:',
         { ...data, message: `${data.message.slice(0, 200)}…` },
       )
+      // Mesaj panele yazıldıysa gerçekten kaybolmadı; kullanıcıya
+      // "gönderilemedi" demek yanlış olur.
+      if (recorded.ok) return { ok: true }
+
       return {
         ok: false,
         message: `E-posta gönderimi henüz yapılandırılmamış. Mesajınızı doğrudan ${SITE.email} adresine iletebilirsiniz.`,

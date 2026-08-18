@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { PRODUCTS, SITE } from '#/lib/brand'
 import { BLOG_POSTS } from '#/data/content'
-import { LEGAL_PAGES } from '#/data/legal'
+import { LEGAL_NAV } from '#/data/legal'
 
 /**
  * /sitemap.xml — katalogdan üretilir, elle güncellenmez.
@@ -29,7 +29,7 @@ function buildEntries(): Array<Entry> {
       changefreq: 'monthly',
     })),
     { path: '/iletisim', priority: '0.5', changefreq: 'yearly' },
-    ...LEGAL_PAGES.map((page) => ({
+    ...LEGAL_NAV.map((page) => ({
       path: `/yasal/${page.slug}`,
       priority: '0.3',
       changefreq: 'yearly',

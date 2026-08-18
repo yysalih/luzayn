@@ -1,11 +1,17 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { SITE } from '#/lib/brand'
-import { LEGAL_BY_SLUG, LEGAL_PAGES } from '#/data/legal'
+import { LEGAL_NAV, buildLegalPages } from '#/data/legal'
+import { loadCatalog } from '#/lib/cms'
 import { NotFoundPage } from '#/components/layout/error-states'
 
 export const Route = createFileRoute('/yasal/$slug')({
-  loader: ({ params }) => {
-    const page = LEGAL_BY_SLUG[params.slug]
+  loader: async ({ params }) => {
+    // Sözleşme metinlerindeki kargo bedeli ve iade süresi panelden geliyor;
+    // sepette görünen rakamla aynı kaynaktan okunmaları şart.
+    const catalog = await loadCatalog()
+    const page = buildLegalPages(catalog.commerce).find(
+      (p) => p.slug === params.slug,
+    )
     if (!page) throw notFound()
     return { page }
   },
@@ -72,7 +78,7 @@ function LegalPage() {
             Diğer Yasal Sayfalar
           </h2>
           <div className="mt-4 flex flex-wrap gap-2">
-            {LEGAL_PAGES.filter((p) => p.slug !== page.slug).map((other) => (
+            {LEGAL_NAV.filter((p) => p.slug !== page.slug).map((other) => (
               <Link
                 key={other.slug}
                 to="/yasal/$slug"

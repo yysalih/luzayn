@@ -4,10 +4,12 @@ import { SITE } from '#/lib/brand'
 import { PageHero } from '#/components/shared/page-hero'
 import { ContactForm } from '#/components/shared/contact-form'
 import { FaqAccordion } from '#/components/shared/faq-accordion'
-import { FAQ } from '#/data/content'
+import { loadFaq } from '#/lib/cms'
 import { KickerPill, SectionTitle } from '#/components/ui/typography'
 
 export const Route = createFileRoute('/iletisim')({
+  // SSS'nin ilk beş maddesi bu sayfada da gösteriliyor.
+  loader: () => loadFaq(),
   head: () => ({
     meta: [
       { title: `İletişim — ${SITE.name}` },
@@ -22,6 +24,8 @@ export const Route = createFileRoute('/iletisim')({
 })
 
 function ContactPage() {
+  const faq = Route.useLoaderData()
+
   return (
     <>
       <PageHero
@@ -89,7 +93,7 @@ function ContactPage() {
             Önce buraya bakın
           </SectionTitle>
           <div className="mt-8">
-            <FaqAccordion items={FAQ.slice(0, 5)} />
+            <FaqAccordion items={faq.slice(0, 5)} />
           </div>
         </div>
       </section>

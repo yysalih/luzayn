@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PRODUCTS, SITE } from '#/lib/brand'
-import { BLOG_POSTS } from '#/data/content'
+import { SITE } from '#/lib/brand'
+import { loadBlogPosts, loadCatalog } from '#/lib/cms'
 import { LEGAL_NAV } from '#/data/legal'
 
 /**
@@ -12,18 +12,27 @@ import { LEGAL_NAV } from '#/data/legal'
 
 type Entry = { path: string; priority: string; changefreq: string }
 
-function buildEntries(): Array<Entry> {
+/**
+ * Site haritası artık veritabanından üretiliyor.
+ *
+ * Bunun görünmeyen ama önemli sonucu: panelden taslağa alınan bir ürün veya
+ * yazı haritadan da düşer. Statik listeyle, yayından kaldırılan bir sayfayı
+ * arama motorlarına önermeye devam ederdik.
+ */
+async function buildEntries(): Promise<Array<Entry>> {
+  const [catalog, posts] = await Promise.all([loadCatalog(), loadBlogPosts()])
+
   return [
     { path: '/', priority: '1.0', changefreq: 'weekly' },
     { path: '/urunler', priority: '0.9', changefreq: 'weekly' },
-    ...PRODUCTS.map((p) => ({
+    ...catalog.products.map((p) => ({
       path: `/urunler/${p.slug}`,
       priority: '0.9',
       changefreq: 'weekly',
     })),
     { path: '/kurumsal', priority: '0.6', changefreq: 'monthly' },
     { path: '/blog', priority: '0.7', changefreq: 'weekly' },
-    ...BLOG_POSTS.map((post) => ({
+    ...posts.map((post) => ({
       path: `/blog/${post.slug}`,
       priority: '0.6',
       changefreq: 'monthly',
@@ -40,12 +49,13 @@ function buildEntries(): Array<Entry> {
 export const Route = createFileRoute('/sitemap.xml')({
   server: {
     handlers: {
-      GET: () => {
+      GET: async () => {
         const base = SITE.url.replace(/\/+$/, '')
+        const entries = await buildEntries()
         const body = [
           '<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-          ...buildEntries().map((e) =>
+          ...entries.map((e) =>
             [
               '  <url>',
               `    <loc>${base}${e.path}</loc>`,

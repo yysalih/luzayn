@@ -9,7 +9,7 @@ import {
   Trash2,
   Truck,
 } from 'lucide-react'
-import { CDN_PATHS, CLAIM_DISCLAIMER, COMMERCE, SITE } from '#/lib/brand'
+import { CDN_PATHS, CLAIM_DISCLAIMER, SITE } from '#/lib/brand'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
 import { useCatalog } from '#/lib/catalog-context'
@@ -258,10 +258,11 @@ function FreeShippingProgress({
   subtotal: number
   remaining: number
 }) {
-  const percent = Math.min(
-    100,
-    Math.round((subtotal / (COMMERCE.freeShippingThreshold ?? 1)) * 100),
-  )
+  const { commerce } = useCatalog()
+  // Eşik yoksa bu çubuk zaten çizilmiyor; 1'e bölme koruması yalnızca
+  // sıfıra bölmeyi engellemek için.
+  const threshold = commerce.freeShippingThreshold ?? 1
+  const percent = Math.min(100, Math.round((subtotal / threshold) * 100))
 
   return (
     <div className="mt-5 rounded-2xl border border-border bg-muted/50 px-4 py-3.5">

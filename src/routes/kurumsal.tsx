@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CDN_PATHS, CERTIFICATIONS, CLAIM_DISCLAIMER, SITE } from '#/lib/brand'
-import { PHILOSOPHY } from '#/data/content'
+import { loadCatalog, loadHome } from '#/lib/cms'
 import { mediaUrl } from '#/lib/media'
 import { PageHero } from '#/components/shared/page-hero'
 import { SeriesExplorer } from '#/components/kurumsal/series-explorer'
@@ -13,6 +13,13 @@ import {
 } from '#/components/ui/typography'
 
 export const Route = createFileRoute('/kurumsal')({
+  // Felsefe bölümü ana sayfayla aynı kaydı okuyor; iki yerde ayrı metin
+  // tutmak, birinin güncellenip diğerinin unutulması demekti.
+  loader: async () => {
+    const catalog = await loadCatalog()
+    const { philosophy } = await loadHome(catalog)
+    return { philosophy }
+  },
   head: () => ({
     meta: [
       { title: `Kurumsal — ${SITE.name}` },
@@ -26,6 +33,8 @@ export const Route = createFileRoute('/kurumsal')({
 })
 
 function AboutPage() {
+  const { philosophy } = Route.useLoaderData()
+
   return (
     <>
       <PageHero
@@ -39,12 +48,12 @@ function AboutPage() {
         <div className="container mx-auto px-4">
           <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
-              <KickerPill>{PHILOSOPHY.kicker}</KickerPill>
+              <KickerPill>{philosophy?.kicker}</KickerPill>
               <SectionTitle className="mt-5 max-w-md text-4xl md:text-5xl">
-                {PHILOSOPHY.title}
+                {philosophy?.title}
               </SectionTitle>
               <SectionLead className="mt-5 max-w-md">
-                {PHILOSOPHY.intro}
+                {philosophy?.intro}
               </SectionLead>
 
               <div className="mt-8 rounded-2xl border border-border bg-muted/40 p-6">
@@ -61,7 +70,7 @@ function AboutPage() {
             </div>
 
             <ul className="grid gap-px overflow-hidden rounded-3xl bg-border sm:grid-cols-2">
-              {PHILOSOPHY.values.map((value, i) => (
+              {(philosophy?.values ?? []).map((value, i) => (
                 <li key={value.title} className="bg-card p-7 md:p-8">
                   <span className="text-sm font-semibold tabular-nums text-accent">
                     {String(i + 1).padStart(2, '0')}

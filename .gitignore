@@ -1,0 +1,26 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.output
+.vinxi
+.tanstack
+.nitro
+.vercel
+.env
+.env.local
+.env.*.local
+*.log
+
+.vercel
+.env*
+
+# Şablon dosyası versiyonlansın; gerçek değerler .env.local içinde ve yukarıda kapsanıyor.
+!.env.example
+
+# Kaynak medya (32 MB). Bunny CDN'de duruyor ve site oradan okuyor; git
+# geçmişine girerse her klonda kalıcı yük olur ve Vercel her deploy'da
+# boşuna taşır. Sunulan dosyalar public/ altında.
+medya/
+medya-jpg/

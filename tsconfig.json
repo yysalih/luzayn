@@ -1,0 +1,19 @@
+{
+  "include": ["**/*.ts", "**/*.tsx"],
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "target": "ES2022",
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false,
+    "noEmit": true,
+    "types": ["vite/client", "node"],
+    "paths": {
+      "#/*": ["./src/*"]
+    }
+  }
+}

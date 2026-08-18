@@ -1,0 +1,187 @@
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --radius-card: var(--radius);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Cinzel', ui-serif, Georgia, serif;
+}
+
+/*
+ * Palet ambalajdan türetildi: koyu lacivert zemin + elektrik mavisi nöral ışık.
+ * Etiketlerin gövde tipografisi laciverte çalan neredeyse-siyah; site
+ * foreground'u onunla aynı bandda.
+ */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.99 0.004 240);
+  --foreground: oklch(0.17 0.045 262);
+  --card: oklch(1 0 0);
+  --muted: oklch(0.96 0.012 240);
+  --muted-foreground: oklch(0.54 0.04 258);
+  --accent: oklch(0.66 0.16 244); /* elektrik mavisi — ambalaj ışığı */
+  --accent-soft: oklch(0.78 0.13 205); /* turkuaz — ışık izlerinin ucu */
+  --border: oklch(0.91 0.014 240);
+  --ink: #0a0a12;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Yatay kaydırma raylarında scrollbar gizleme yardımcı sınıfı */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ambalajdaki kelime markası kilidi — serif, geniş harf aralığı */
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* --- Çekirdek keyframe kütüphanesi (yeni animasyon icat etmeden önce burada ara) --- */
+
+@keyframes showcase-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes showcase-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * Marquee: içerik iki kez render edilir, şerit -%50 kaydırılır.
+ * scrollLeft yerine transform kullanılıyor — scrollLeft yaklaşımı
+ * kaydırılabilir alan içeriğin yarısından kısa olduğunda sona yapışıp
+ * ileri-geri titriyordu.
+ */
+@keyframes marquee-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes showcase-progress-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes evidence-ring-fill {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: var(--ring-target);
+  }
+}
+
+@keyframes evidence-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bundle-glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 60px -15px rgba(34, 211, 238, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 80px -10px rgba(59, 130, 246, 0.45);
+  }
+}
+
+@keyframes wisdom-kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.12) translate(-1%, -1%);
+  }
+}
+
+@keyframes orb-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(4%, 6%);
+  }
+}
+
+@keyframes orb-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-5%, -4%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

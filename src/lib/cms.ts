@@ -176,8 +176,14 @@ async function fetchCatalog(): Promise<Catalog> {
     categories: [...new Set(products.map((p) => p.category))],
     featured: products.filter((p) => p.featured),
     commerce: {
-      freeShippingThreshold: Number(s?.free_shipping_threshold ?? 0),
-      standardShippingFee: Number(s?.shipping_fee ?? 0),
+      // NULL'u 0'a ÇEVİRME. `?? 0` burada sessiz bir ticari hataydı:
+      // NULL "ücretsiz kargo eşiği yok" demek, 0 ise "her tutarda ücretsiz".
+      // Sepet ikincisini okuyup koşulsuz ücretsiz kargo vaat ediyordu.
+      freeShippingThreshold:
+        s?.free_shipping_threshold == null
+          ? null
+          : Number(s.free_shipping_threshold),
+      standardShippingFee: Number(s?.standard_shipping_fee ?? 0),
       returnDays: Number(s?.return_days ?? 14),
     },
     bundle: {

@@ -1,7 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { PRODUCT_BY_SLUG } from '#/lib/brand'
-import type { ProductSlug } from '#/lib/brand'
+import { loadCatalog } from '#/lib/cms'
 
 /**
  * Shopify Storefront API — ödeme devri.
@@ -81,16 +80,23 @@ type CartCreateResponse = {
   errors?: Array<{ message: string }>
 }
 
-const PRODUCT_SLUGS = Object.keys(PRODUCT_BY_SLUG) as [
-  ProductSlug,
-  ...Array<ProductSlug>,
-]
-
+/**
+ * Slug listesi artık modül yüklenirken bilinmiyor: katalog veritabanından
+ * geliyor. Bu yüzden z.enum yerine biçim kontrolü yapıyoruz; slug'ın GERÇEK
+ * doğrulaması handler içinde, katalogla karşılaştırılarak yapılıyor.
+ *
+ * Kontrolün zayıfladığı anlamına gelmez: eskiden de asıl güvence
+ * "slug katalogda var mı" idi, enum onu derleme anında sabitliyordu.
+ */
 export const checkoutInputSchema = z.object({
   items: z
     .array(
       z.object({
-        slug: z.enum(PRODUCT_SLUGS),
+        slug: z
+          .string()
+          .min(1)
+          .max(64)
+          .regex(/^[a-z0-9-]+$/, 'Geçersiz ürün.'),
         qty: z.number().int().min(1).max(20),
       }),
     )
@@ -121,8 +127,44 @@ export const createShopifyCheckout = createServerFn({ method: 'POST' })
       }
     }
 
+    // Varyant kimliği İSTEMCİDEN DEĞİL, sunucudaki katalogdan okunur.
+    // İstemciden gelen tek şey slug ve adet; hangi Shopify varyantının
+    // hangi fiyattan sepete gireceğine sunucu karar verir.
+    const catalog = await loadCatalog()
+
+    const unknown = data.items.filter((item) => !catalog.bySlug[item.slug])
+    if (unknown.length > 0) {
+      console.error(
+        '[shopify] katalogda olmayan slug:',
+        unknown.map((i) => i.slug).join(', '),
+      )
+      return {
+        ok: false,
+        message:
+          'Sepetinizdeki ürünlerden biri artık satışta değil. Sepeti yenileyip tekrar deneyin.',
+      }
+    }
+
+    // Varyant kimliği boş olan ürün Shopify'da karşılığı olmayan üründür;
+    // böyle bir satırla sepet kurmak Shopify tarafında anlamsız bir hataya
+    // dönüşür, o yüzden burada yakalıyoruz.
+    const missingVariant = data.items.filter(
+      (item) => !catalog.bySlug[item.slug].shopifyVariantId,
+    )
+    if (missingVariant.length > 0) {
+      console.error(
+        '[shopify] varyant kimliği tanımsız:',
+        missingVariant.map((i) => i.slug).join(', '),
+      )
+      return {
+        ok: false,
+        message:
+          'Sepetinizdeki ürünlerden biri şu anda satın alınamıyor. Bizimle iletişime geçebilirsiniz.',
+      }
+    }
+
     const lines = data.items.map((item) => ({
-      merchandiseId: `gid://shopify/ProductVariant/${PRODUCT_BY_SLUG[item.slug].shopifyVariantId}`,
+      merchandiseId: `gid://shopify/ProductVariant/${catalog.bySlug[item.slug].shopifyVariantId}`,
       quantity: item.qty,
     }))
 

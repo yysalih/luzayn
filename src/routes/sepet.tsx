@@ -12,6 +12,7 @@ import {
 import { CDN_PATHS, CLAIM_DISCLAIMER, COMMERCE, SITE } from '#/lib/brand'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
+import { useCatalog } from '#/lib/catalog-context'
 import { resolveCart, useCart, useCartHydrated } from '#/store/cart'
 import { useShopifyCheckout } from '#/hooks/use-shopify-checkout'
 import { Disclaimer } from '#/components/ui/typography'
@@ -26,7 +27,8 @@ function CartPage() {
   const lines = useCart((s) => s.lines)
   const setQty = useCart((s) => s.setQty)
   const remove = useCart((s) => s.remove)
-  const cart = resolveCart(hydrated ? lines : [])
+  const catalog = useCatalog()
+  const cart = resolveCart(catalog, hydrated ? lines : [])
   const { checkout, pending, error } = useShopifyCheckout()
 
   return (

@@ -298,10 +298,11 @@ export function Header() {
 }
 
 function CartButton({ transparent }: { transparent: boolean }) {
+  const catalog = useCatalog()
   const hydrated = useCartHydrated()
   const lines = useCart((s) => s.lines)
   // Hydration tamamlanana kadar sunucu render'ıyla aynı kalmalı
-  const count = hydrated ? resolveCart(lines).count : 0
+  const count = hydrated ? resolveCart(catalog, lines).count : 0
 
   return (
     <Link

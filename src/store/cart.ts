@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { COMMERCE, PRODUCT_BY_SLUG } from '#/lib/brand'
 import type { ProductMeta, ProductSlug } from '#/lib/brand'
+import type { Catalog } from '#/lib/cms'
 
 export type CartLine = { slug: ProductSlug; qty: number }
 
@@ -50,13 +50,17 @@ export const useCart = create<CartState>()(
       storage: createJSONStorage(() => localStorage),
       // Sunucuda localStorage yok; hydration'ı elle tetikliyoruz (useCartHydrated).
       skipHydration: true,
-      // Kaydedilen slug artık katalogda yoksa sessizce düşür
+      /**
+       * Katalog artık veritabanından geliyor ve hydration anında elimizde
+       * OLMUYOR — bu yüzden burada slug doğrulaması yapılamıyor. Bilinmeyen
+       * slug'lar resolveCart() içinde düşürülüyor: orada katalog var.
+       *
+       * Pratik sonucu aynı: kaldırılmış bir ürün sepette görünmez. Farkı,
+       * localStorage'da satırın durmaya devam etmesi — zararsız.
+       */
       merge: (persisted, current) => {
         const saved = (persisted as CartState | undefined)?.lines ?? []
-        return {
-          ...current,
-          lines: saved.filter((l) => l.slug in PRODUCT_BY_SLUG && l.qty > 0),
-        }
+        return { ...current, lines: saved.filter((l) => l.qty > 0) }
       },
     },
   ),
@@ -88,16 +92,25 @@ export type CartItem = { product: ProductMeta; qty: number; lineTotal: number }
  * kargo tutarı gösterilmez, "ödeme adımında hesaplanır" denir — sitede
  * gerçekleşmeyecek bir toplam göstermemek için.
  */
-export function resolveCart(lines: Array<CartLine>) {
+/**
+ * Sepet satırlarını katalogla eşleştirip tutarları hesaplar.
+ *
+ * Katalog PARAMETRE olarak geliyor, modülden okunmuyor: fiyatlar artık
+ * veritabanından ve zustand store'u asenkron veri bekleyemez. Çağıran taraf
+ * katalogu bağlamdan alıp veriyor.
+ */
+export function resolveCart(catalog: Catalog, lines: Array<CartLine>) {
   const items: Array<CartItem> = lines.flatMap((line) => {
-    const product = PRODUCT_BY_SLUG[line.slug]
+    // Katalogda olmayan slug: ürün yayından kaldırılmış olabilir. Sessizce
+    // düşürülür — sepette fiyatı bilinmeyen bir satır göstermek yerine.
+    const product = catalog.bySlug[line.slug]
     if (!product) return []
     return [{ product, qty: line.qty, lineTotal: product.price * line.qty }]
   })
 
   const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0)
   const count = items.reduce((sum, item) => sum + item.qty, 0)
-  const threshold = COMMERCE.freeShippingThreshold
+  const threshold = catalog.commerce.freeShippingThreshold
 
   // Eşik tanımlı değilse kargo checkout'ta belli olur
   if (threshold === null) {
@@ -115,7 +128,7 @@ export function resolveCart(lines: Array<CartLine>) {
 
   const freeShipping = subtotal >= threshold
   const shipping =
-    items.length === 0 || freeShipping ? 0 : COMMERCE.standardShippingFee
+    items.length === 0 || freeShipping ? 0 : catalog.commerce.standardShippingFee
 
   return {
     items,

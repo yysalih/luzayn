@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, Plus, ShoppingBag } from 'lucide-react'
 import type { ProductMeta } from '#/lib/brand'
+import { trackEvent } from '#/lib/track'
 import { useCart, useCartHydrated } from '#/store/cart'
 import { cn } from '#/lib/utils'
 
@@ -38,6 +39,7 @@ export function AddToCart({
 
   const onClick = () => {
     add(product.slug, qty)
+    trackEvent('add_to_cart')
     setAdded(true)
     if (timer.current) clearTimeout(timer.current)
     timer.current = setTimeout(() => setAdded(false), 1800)

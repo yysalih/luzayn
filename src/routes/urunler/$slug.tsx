@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { CDN_PATHS, CLAIM_DISCLAIMER, SITE } from '#/lib/brand'
 import { useCatalog } from '#/lib/catalog-context'
+import { trackEvent } from '#/lib/track'
 import { loadCatalog } from '#/lib/cms'
 import type { ProductMeta } from '#/lib/brand'
 import { mediaUrl } from '#/lib/media'
@@ -91,7 +92,10 @@ function TopSection({
   const { checkout, pending, error } = useShopifyCheckout()
 
   // Sepetten bağımsız, yalnızca bu ürünle doğrudan Shopify checkout'u
-  const buyNow = () => void checkout([{ slug: product.slug, qty }])
+  const buyNow = () => {
+    trackEvent('buy_now')
+    void checkout([{ slug: product.slug, qty }])
+  }
 
   return (
     <section className="bg-background pb-16 pt-10 md:pb-20 md:pt-14">

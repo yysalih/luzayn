@@ -18,6 +18,17 @@ const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY ?? '').trim()
 export const isSupabaseConfigured = Boolean(url && anonKey)
 
 /**
+ * Ham REST erişimi için kök ve anahtar.
+ *
+ * Olay ölçümü (src/lib/track.ts) SDK yerine düz `fetch` kullanıyor: sekme
+ * kapanırken gönderim yapabilmek için `keepalive` gerekiyor ve SDK bu seçeneği
+ * geçirmiyor. Bunlar zaten tarayıcı paketinin içinde olan değerler, dışa
+ * vermek yeni bir şey açmıyor.
+ */
+export const SUPABASE_REST_URL = url ? `${url}/rest/v1` : ''
+export const SUPABASE_ANON_KEY = anonKey
+
+/**
  * Yapılandırılmamışken null döner — throw etmez.
  *
  * Sebep: site iyzico ve Resend eksikken de ayakta kalıyor ve kullanıcıya

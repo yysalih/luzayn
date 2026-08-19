@@ -88,136 +88,149 @@ export function Header() {
   }, [mobileOpen])
 
   return (
-    <header
-      className={cn(
-        'z-50 w-full transition-all duration-300',
-        isHome ? 'fixed top-0 left-0' : 'sticky top-0',
-        transparent
-          ? 'bg-transparent'
-          : 'border-b border-border bg-white/90 backdrop-blur-md',
-      )}
-    >
-      <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:h-18">
-        <Link to="/" className="shrink-0" aria-label="Luzayn ana sayfa">
-          <Logo inverted={transparent} />
-        </Link>
+    <>
+      <header
+        className={cn(
+          'z-50 w-full transition-all duration-300',
+          isHome ? 'fixed top-0 left-0' : 'sticky top-0',
+          transparent
+            ? 'bg-transparent'
+            : 'border-b border-border bg-white/90 backdrop-blur-md',
+        )}
+      >
+        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:h-18">
+          <Link to="/" className="shrink-0" aria-label="Luzayn ana sayfa">
+            <Logo inverted={transparent} />
+          </Link>
 
-        <nav ref={navRef} className="hidden items-center gap-1 lg:flex">
-          {NAV.map((item) =>
-            item.children ? (
-              <div key={item.to} className="relative">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setOpenDropdown(openDropdown === item.to ? null : item.to)
-                  }
-                  aria-expanded={openDropdown === item.to}
+          <nav ref={navRef} className="hidden items-center gap-1 lg:flex">
+            {NAV.map((item) =>
+              item.children ? (
+                <div key={item.to} className="relative">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenDropdown(openDropdown === item.to ? null : item.to)
+                    }
+                    aria-expanded={openDropdown === item.to}
+                    className={cn(
+                      'flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium transition-colors',
+                      transparent
+                        ? 'text-white/85 hover:bg-white/10 hover:text-white'
+                        : 'text-foreground/75 hover:bg-muted hover:text-foreground',
+                    )}
+                  >
+                    {item.label}
+                    <ChevronDown
+                      className={cn(
+                        'h-3.5 w-3.5 transition-transform',
+                        openDropdown === item.to && 'rotate-180',
+                      )}
+                    />
+                  </button>
+
+                  {openDropdown === item.to ? (
+                    <div className="absolute left-0 top-full mt-2 grid w-[34rem] grid-cols-2 gap-0.5 animate-[showcase-fade-in_0.18s_ease-out] rounded-2xl border border-border bg-white p-2 shadow-xl shadow-black/5">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.slug}
+                          to={item.childPattern!}
+                          params={{ slug: child.slug }}
+                          className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-muted"
+                        >
+                          <img
+                            src={mediaUrl(child.image)}
+                            alt=""
+                            aria-hidden
+                            loading="lazy"
+                            className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                            style={{
+                              boxShadow: `inset 0 0 0 1px ${child.accent}30`,
+                            }}
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-sm font-medium text-foreground">
+                              {child.label}
+                            </span>
+                            <span className="block truncate text-xs text-muted-foreground">
+                              {child.hint}
+                            </span>
+                          </span>
+                        </Link>
+                      ))}
+                      <Link
+                        to={item.to}
+                        className="col-span-2 mt-1 block rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-accent hover:bg-muted"
+                      >
+                        Tümünü Gör
+                      </Link>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <Link
+                  key={item.to}
+                  to={item.to}
                   className={cn(
-                    'flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium transition-colors',
+                    'rounded-full px-3.5 py-2 text-sm font-medium transition-colors',
                     transparent
                       ? 'text-white/85 hover:bg-white/10 hover:text-white'
                       : 'text-foreground/75 hover:bg-muted hover:text-foreground',
                   )}
                 >
                   {item.label}
-                  <ChevronDown
-                    className={cn(
-                      'h-3.5 w-3.5 transition-transform',
-                      openDropdown === item.to && 'rotate-180',
-                    )}
-                  />
-                </button>
-
-                {openDropdown === item.to ? (
-                  <div className="absolute left-0 top-full mt-2 grid w-[34rem] grid-cols-2 gap-0.5 animate-[showcase-fade-in_0.18s_ease-out] rounded-2xl border border-border bg-white p-2 shadow-xl shadow-black/5">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.slug}
-                        to={item.childPattern!}
-                        params={{ slug: child.slug }}
-                        className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-muted"
-                      >
-                        <img
-                          src={mediaUrl(child.image)}
-                          alt=""
-                          aria-hidden
-                          loading="lazy"
-                          className="h-12 w-12 shrink-0 rounded-lg object-cover"
-                          style={{
-                            boxShadow: `inset 0 0 0 1px ${child.accent}30`,
-                          }}
-                        />
-                        <span className="min-w-0">
-                          <span className="block text-sm font-medium text-foreground">
-                            {child.label}
-                          </span>
-                          <span className="block truncate text-xs text-muted-foreground">
-                            {child.hint}
-                          </span>
-                        </span>
-                      </Link>
-                    ))}
-                    <Link
-                      to={item.to}
-                      className="col-span-2 mt-1 block rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-accent hover:bg-muted"
-                    >
-                      Tümünü Gör
-                    </Link>
-                  </div>
-                ) : null}
-              </div>
-            ) : (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  'rounded-full px-3.5 py-2 text-sm font-medium transition-colors',
-                  transparent
-                    ? 'text-white/85 hover:bg-white/10 hover:text-white'
-                    : 'text-foreground/75 hover:bg-muted hover:text-foreground',
-                )}
-              >
-                {item.label}
-              </Link>
-            ),
-          )}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <CartButton transparent={transparent} />
-
-          <Link
-            to="/urunler"
-            className={cn(
-              'hidden rounded-full px-5 py-2.5 text-sm font-semibold shadow-lg transition-transform hover:scale-105 sm:inline-flex',
-              transparent
-                ? 'bg-white text-black shadow-black/20'
-                : 'bg-accent text-white shadow-accent/25',
+                </Link>
+              ),
             )}
-          >
-            Ürünleri Keşfet
-          </Link>
+          </nav>
 
-          <button
-            type="button"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
-            className={cn(
-              'inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors lg:hidden',
-              transparent
-                ? 'text-white hover:bg-white/10'
-                : 'text-foreground hover:bg-muted',
-            )}
-          >
-            {mobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <CartButton transparent={transparent} />
+
+            <Link
+              to="/urunler"
+              className={cn(
+                'hidden rounded-full px-5 py-2.5 text-sm font-semibold shadow-lg transition-transform hover:scale-105 sm:inline-flex',
+                transparent
+                  ? 'bg-white text-black shadow-black/20'
+                  : 'bg-accent text-white shadow-accent/25',
+              )}
+            >
+              Ürünleri Keşfet
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+              className={cn(
+                'inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors lg:hidden',
+                transparent
+                  ? 'text-white hover:bg-white/10'
+                  : 'text-foreground hover:bg-muted',
+              )}
+            >
+              {mobileOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
+      {/*
+        Mobil menü bilerek <header> elemanının DIŞINDA.
+
+        Header'da backdrop-blur var ve backdrop-filter, fixed alt öğeler için
+        yeni bir konumlandırma bağlamı yaratıyor. Panel header'ın içindeyken
+        viewport yerine 65px'lik header kutusuna göre konumlanıyor, top-16 +
+        pb-10 ile 57px'e düşüp kırpılıyordu. Ana sayfa tepesinde sorun
+        görünmüyordu çünkü orada header saydam ve blur'suz.
+
+        Kardeş öğe olunca fixed yeniden viewport'a göre çalışır.
+      */}
       {mobileOpen ? (
         <div className="fixed inset-x-0 top-16 bottom-0 z-50 animate-[showcase-fade-in_0.2s_ease-out] overflow-y-auto border-t border-border bg-white px-4 pb-10 pt-4 lg:hidden">
           <nav className="flex flex-col">
@@ -293,7 +306,7 @@ export function Header() {
           </Link>
         </div>
       ) : null}
-    </header>
+    </>
   )
 }
 

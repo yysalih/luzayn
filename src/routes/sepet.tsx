@@ -13,6 +13,7 @@ import { CDN_PATHS, CLAIM_DISCLAIMER, SITE } from '#/lib/brand'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
 import { useCatalog } from '#/lib/catalog-context'
+import { trackEvent } from '#/lib/track'
 import { resolveCart, useCart, useCartHydrated } from '#/store/cart'
 import { useShopifyCheckout } from '#/hooks/use-shopify-checkout'
 import { Disclaimer } from '#/components/ui/typography'
@@ -196,7 +197,10 @@ function CartPage() {
 
                 <button
                   type="button"
-                  onClick={() => checkout(lines)}
+                  onClick={() => {
+                    trackEvent('checkout_start')
+                    checkout(lines)
+                  }}
                   disabled={pending || !hydrated}
                   className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-7 py-4 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition-transform hover:scale-[1.02] disabled:opacity-60"
                 >

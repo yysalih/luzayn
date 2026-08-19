@@ -174,7 +174,34 @@ export const sendContactMessage = createServerFn({ method: 'POST' })
 
       return { ok: true }
     } catch (err) {
-      console.error('[iletişim] SMTP hatası:', err)
+      /**
+       * Nodemailer hataları teşhis için gereken her şeyi taşır ama düz
+       * basıldığında okunmuyor. Alanları ayrı ayrı yazıyoruz:
+       *   EAUTH + 535  → kullanıcı adı/şifre yanlış ya da kutu yok
+       *   ECONNECTION / ETIMEDOUT → porta ulaşılamıyor
+       *   EENVELOPE    → gönderen/alıcı adresi reddedildi
+       */
+      const e = err as {
+        code?: string
+        responseCode?: number
+        response?: string
+        command?: string
+        message?: string
+      }
+      console.error(
+        '[iletişim] SMTP hatası:',
+        JSON.stringify({
+          code: e.code,
+          responseCode: e.responseCode,
+          response: e.response,
+          command: e.command,
+          message: e.message,
+          host: config.host,
+          port: config.port,
+          secure: config.secure,
+          user: config.user,
+        }),
+      )
       return { ok: false, message: FALLBACK }
     }
   })

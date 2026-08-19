@@ -2,6 +2,7 @@ import { Check, ShoppingBag, Truck } from 'lucide-react'
 import { CDN_PATHS } from '#/lib/brand'
 import { useCatalog } from '#/lib/catalog-context'
 import { bundleTotals } from '#/lib/cms'
+import { trackEvent } from '#/lib/track'
 import { mediaUrl } from '#/lib/media'
 import { formatPrice } from '#/lib/utils'
 import { useCart, useCartHydrated } from '#/store/cart'
@@ -127,7 +128,10 @@ export function BundleSection() {
             <button
               type="button"
               disabled={!hydrated}
-              onClick={() => items.forEach((item) => add(item.slug, 1))}
+              onClick={() => {
+                trackEvent('add_bundle')
+                items.forEach((item) => add(item.slug, 1))
+              }}
               className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-7 py-4 text-sm font-semibold text-black shadow-lg transition-transform hover:scale-[1.02] disabled:opacity-50"
             >
               <ShoppingBag className="h-4 w-4" />

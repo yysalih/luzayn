@@ -1,7 +1,16 @@
+import { useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
+import { trackNotFound } from '#/lib/track'
 
 export function NotFoundPage() {
+  // Kırık adresi panelin 404 monitörüne bildir. useEffect içinde: render
+  // sırasında yan etki üretmek, React'ın iki kez render ettiği geliştirme
+  // modunda olayı çift saydırırdı.
+  useEffect(() => {
+    trackNotFound()
+  }, [])
+
   return (
     <Shell
       code="404"

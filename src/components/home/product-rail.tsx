@@ -67,7 +67,7 @@ function RailCard({ product, index }: { product: ProductMeta; index: number }) {
       }}
     >
       <img
-        src={mediaUrl(CDN_PATHS.cover(product.slug))}
+        src={mediaUrl(product.cover)}
         alt={product.name}
         loading="lazy"
         className="absolute inset-0 h-full w-full object-cover"

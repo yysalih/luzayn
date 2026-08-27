@@ -14,14 +14,14 @@ export function ProductGallery({ product }: { product: ProductMeta }) {
   const [active, setActive] = useState(0)
 
   const slides: Array<Slide> = [
-    { kind: 'image', src: CDN_PATHS.cover(product.slug) },
+    { kind: 'image', src: product.cover },
     {
       kind: 'video',
       src: isMobile
         ? CDN_PATHS.videoMobile(product.slug)
         : CDN_PATHS.videoDesktop(product.slug),
     },
-    { kind: 'image', src: CDN_PATHS.image(product.slug) },
+    { kind: 'image', src: product.image },
   ]
 
   useEffect(() => {

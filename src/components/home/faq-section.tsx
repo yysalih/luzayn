@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 import { CDN_PATHS } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import type { FaqItem } from '#/data/content'
 import { mediaUrl } from '#/lib/media'
 import { FaqAccordion } from '#/components/shared/faq-accordion'
@@ -11,10 +12,12 @@ import {
 } from '#/components/ui/typography'
 
 export function FaqSection({ items }: { items: Array<FaqItem> }) {
+  const { bySlug } = useCatalog()
+
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
       <img
-        src={mediaUrl(CDN_PATHS.cover('reishi'))}
+        src={mediaUrl(bySlug.reishi?.cover ?? CDN_PATHS.cover('reishi'))}
         alt=""
         aria-hidden
         loading="lazy"

@@ -83,7 +83,7 @@ export function IngredientShowcase() {
                 style={{ borderColor: `${product.accent}30` }}
               >
                 <img
-                  src={mediaUrl(CDN_PATHS.cover(product.slug))}
+                  src={mediaUrl(product.cover)}
                   alt={product.name}
                   loading="lazy"
                   className="aspect-[4/5] w-full object-cover"

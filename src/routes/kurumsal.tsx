@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CDN_PATHS, CERTIFICATIONS, CLAIM_DISCLAIMER, SITE } from '#/lib/brand'
+import { useCatalog } from '#/lib/catalog-context'
 import { loadCatalog, loadHome } from '#/lib/cms'
 import { mediaUrl } from '#/lib/media'
 import { PageHero } from '#/components/shared/page-hero'
@@ -33,6 +34,7 @@ export const Route = createFileRoute('/kurumsal')({
 })
 
 function AboutPage() {
+  const { bySlug } = useCatalog()
   const { philosophy } = Route.useLoaderData()
 
   return (
@@ -91,7 +93,7 @@ function AboutPage() {
       {/* Kalite — koyu, fotoğraf arka planlı */}
       <section className="relative overflow-hidden py-20 md:py-28">
         <img
-          src={mediaUrl(CDN_PATHS.cover('xsls'))}
+          src={mediaUrl(bySlug.xsls?.cover ?? CDN_PATHS.cover('xsls'))}
           alt=""
           aria-hidden
           loading="lazy"

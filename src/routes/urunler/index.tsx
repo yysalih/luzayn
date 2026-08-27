@@ -69,7 +69,7 @@ function ProductCard({
         className="relative block overflow-hidden"
       >
         <img
-          src={mediaUrl(CDN_PATHS.cover(product.slug))}
+          src={mediaUrl(product.cover)}
           alt={product.name}
           loading="lazy"
           className="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"

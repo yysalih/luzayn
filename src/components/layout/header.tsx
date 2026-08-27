@@ -41,7 +41,7 @@ function buildNav(products: Array<ProductMeta>): Array<NavItem> {
         slug: p.slug,
         accent: p.accent,
         hint: p.subtitle,
-        image: p.cover ?? CDN_PATHS.cover(p.slug),
+        image: p.cover,
       })),
     },
     { label: 'Kurumsal', to: '/kurumsal' },

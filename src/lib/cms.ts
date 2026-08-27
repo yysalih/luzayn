@@ -266,7 +266,7 @@ export async function loadHome(catalog: Catalog): Promise<HomeContent> {
           accent: p.accent,
           videoDesktop: CDN_PATHS.videoDesktop(p.slug),
           videoMobile: CDN_PATHS.videoMobile(p.slug),
-          poster: p.cover ?? CDN_PATHS.cover(p.slug),
+          poster: p.cover,
           ctaLabel: `${p.shortName} İncele`,
         },
       ]

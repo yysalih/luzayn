@@ -93,7 +93,7 @@ function VideoCard({
       }}
     >
       <img
-        src={mediaUrl(CDN_PATHS.cover(product.slug))}
+        src={mediaUrl(product.cover)}
         alt=""
         aria-hidden
         loading="lazy"

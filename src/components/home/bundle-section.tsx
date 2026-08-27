@@ -33,7 +33,7 @@ export function BundleSection() {
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
       <img
-        src={mediaUrl(CDN_PATHS.cover('omega3'))}
+        src={mediaUrl(catalog.bySlug.omega3?.cover ?? CDN_PATHS.cover('omega3'))}
         alt=""
         aria-hidden
         loading="lazy"

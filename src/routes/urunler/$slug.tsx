@@ -52,7 +52,7 @@ export const Route = createFileRoute('/urunler/$slug')({
         { property: 'og:description', content: product.description },
         {
           property: 'og:image',
-          content: mediaUrl(CDN_PATHS.cover(product.slug)),
+          content: mediaUrl(product.cover),
         },
       ],
     }
@@ -397,7 +397,7 @@ function InfoAccordion({ product }: { product: ProductMeta }) {
          * gömülü olduğu için üzerine yazı bindirilmez, temiz gösterilir.
          */}
         <img
-          src={mediaUrl(CDN_PATHS.image(product.slug))}
+          src={mediaUrl(product.image)}
           alt={product.name}
           loading="lazy"
           className="mb-10 aspect-[16/9] w-full rounded-3xl object-cover"
@@ -447,7 +447,7 @@ function HighlightsSection({ product }: { product: ProductMeta }) {
       {/* Arka planda /covers/ kullanılır: /images/ dosyalarının içinde gömülü
           başlık metni var, karartılınca okunaksız parazit oluyor. */}
       <img
-        src={mediaUrl(CDN_PATHS.cover(product.slug))}
+        src={mediaUrl(product.cover)}
         alt=""
         aria-hidden
         loading="lazy"
@@ -529,7 +529,7 @@ function CrossSell({ current }: { current: ProductMeta }) {
               className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg"
             >
               <img
-                src={mediaUrl(CDN_PATHS.cover(p.slug))}
+                src={mediaUrl(p.cover)}
                 alt={p.name}
                 loading="lazy"
                 className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"

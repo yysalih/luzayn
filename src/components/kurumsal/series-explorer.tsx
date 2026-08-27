@@ -110,7 +110,7 @@ export function SeriesExplorer() {
                 }}
               >
                 <img
-                  src={mediaUrl(CDN_PATHS.cover(p.slug))}
+                  src={mediaUrl(p.cover)}
                   alt=""
                   aria-hidden
                   loading="lazy"
@@ -137,7 +137,7 @@ export function SeriesExplorer() {
               }}
             >
               <img
-                src={mediaUrl(CDN_PATHS.cover(product.slug))}
+                src={mediaUrl(product.cover)}
                 alt=""
                 aria-hidden
                 className="absolute inset-0 h-full w-full object-cover"

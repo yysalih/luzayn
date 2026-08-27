@@ -72,10 +72,21 @@ export type ProductMeta = {
   featured?: boolean
   /** Panelden yönetilen stok durumu. Tanımsızsa stokta sayılır. */
   inStock?: boolean
-  /** Kapak görseli. Tanımsızsa CDN_PATHS.cover(slug) kullanılır. */
-  cover?: string
-  /** İkinci görsel. Tanımsızsa CDN_PATHS.image(slug) kullanılır. */
-  image?: string
+  /**
+   * Kapak ve ikinci görsel — ZORUNLU.
+   *
+   * cms.ts bunları her ürün için dolduruyor: panelde elle girilmiş bir yol
+   * varsa o, yoksa slug'dan türetilen CDN yolu. Opsiyonel bırakıldıkları
+   * sürece bileşenler `CDN_PATHS.cover(slug)` yazmayı sürdürdü ve panelden
+   * girilen görsel sitede hiç görünmedi. Alanları zorunlu yapmak, doğru
+   * kaynağı kullanmayı tek makul seçenek haline getiriyor.
+   *
+   * KURAL: bir ürünün görselini basarken CDN_PATHS'i ÇAĞIRMA, bu alanları
+   * kullan. CDN_PATHS yalnızca cms.ts içinde ve ürüne bağlı olmayan
+   * (video gibi) yollar için.
+   */
+  cover: string
+  image: string
   /** Kısa duygusal motto */
   motto: string
   /** Ürün açıklaması */

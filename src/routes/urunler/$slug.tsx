@@ -532,7 +532,7 @@ function CrossSell({ current }: { current: ProductMeta }) {
                 src={mediaUrl(p.cover)}
                 alt={p.name}
                 loading="lazy"
-                className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                className="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
               />
               <div className="p-4">
                 <h3 className="text-sm font-bold text-foreground">

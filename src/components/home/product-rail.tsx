@@ -16,7 +16,7 @@ export function ProductRail() {
     <section className="bg-background py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <SectionTitle>Sekiz formül, sekiz ayrı amaç.</SectionTitle>
+          <SectionTitle>Her İhtiyaçta Yanınızda</SectionTitle>
           <Link
             to="/urunler"
             className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"

@@ -10,7 +10,6 @@ import {
   Disclaimer,
   KickerRuled,
   SectionLead,
-  SectionTitle,
 } from '#/components/ui/typography'
 
 /**
@@ -49,10 +48,7 @@ export function SeriesExplorer() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
             <KickerRuled>Seri Gezgini</KickerRuled>
-            <SectionTitle dark className="mt-5">
-              Serideki {products.length} formül.
-            </SectionTitle>
-            <SectionLead dark className="mt-4">
+            <SectionLead dark className="mt-5">
               Bir formül seçin: klibini izleyin, porsiyon başına ne içerdiğini
               aynı ekranda görün.
             </SectionLead>

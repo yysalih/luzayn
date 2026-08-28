@@ -107,27 +107,52 @@ export function Header() {
             {NAV.map((item) =>
               item.children ? (
                 <div key={item.to} className="relative">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenDropdown(openDropdown === item.to ? null : item.to)
-                    }
-                    aria-expanded={openDropdown === item.to}
+                  {/*
+                    Etiket ve ok AYRI öğeler: etikete basmak doğrudan sayfaya
+                    götürür, alt menüyü yalnızca ok açar. Tek buton olduğunda
+                    "Ürünler"e tıklayan kullanıcı hiçbir yere gidemiyordu.
+                  */}
+                  <div
                     className={cn(
-                      'flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium transition-colors',
-                      transparent
-                        ? 'text-white/85 hover:bg-white/10 hover:text-white'
-                        : 'text-foreground/75 hover:bg-muted hover:text-foreground',
+                      'flex items-center rounded-full transition-colors',
+                      transparent ? 'hover:bg-white/10' : 'hover:bg-muted',
                     )}
                   >
-                    {item.label}
-                    <ChevronDown
+                    <Link
+                      to={item.to}
                       className={cn(
-                        'h-3.5 w-3.5 transition-transform',
-                        openDropdown === item.to && 'rotate-180',
+                        'py-2 pl-3.5 pr-1 text-sm font-medium transition-colors',
+                        transparent
+                          ? 'text-white/85 hover:text-white'
+                          : 'text-foreground/75 hover:text-foreground',
                       )}
-                    />
-                  </button>
+                    >
+                      {item.label}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenDropdown(
+                          openDropdown === item.to ? null : item.to,
+                        )
+                      }
+                      aria-expanded={openDropdown === item.to}
+                      aria-label={`${item.label} alt menüsü`}
+                      className={cn(
+                        'py-2 pl-0.5 pr-3 transition-colors',
+                        transparent
+                          ? 'text-white/70 hover:text-white'
+                          : 'text-foreground/60 hover:text-foreground',
+                      )}
+                    >
+                      <ChevronDown
+                        className={cn(
+                          'h-3.5 w-3.5 transition-transform',
+                          openDropdown === item.to && 'rotate-180',
+                        )}
+                      />
+                    </button>
+                  </div>
 
                   {openDropdown === item.to ? (
                     <div className="absolute left-0 top-full mt-2 grid w-[34rem] grid-cols-2 gap-0.5 animate-[showcase-fade-in_0.18s_ease-out] rounded-2xl border border-border bg-white p-2 shadow-xl shadow-black/5">
@@ -237,24 +262,33 @@ export function Header() {
             {NAV.map((item) =>
               item.children ? (
                 <div key={item.to} className="border-b border-border/70">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setMobileSection(
-                        mobileSection === item.to ? null : item.to,
-                      )
-                    }
-                    aria-expanded={mobileSection === item.to}
-                    className="flex w-full items-center justify-between py-4 text-left text-base font-medium text-foreground"
-                  >
-                    {item.label}
-                    <ChevronDown
-                      className={cn(
-                        'h-4 w-4 text-muted-foreground transition-transform',
-                        mobileSection === item.to && 'rotate-180',
-                      )}
-                    />
-                  </button>
+                  {/* Masaüstündeki gibi: etiket sayfaya gider, ok listeyi açar */}
+                  <div className="flex items-center">
+                    <Link
+                      to={item.to}
+                      className="flex-1 py-4 text-base font-medium text-foreground"
+                    >
+                      {item.label}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMobileSection(
+                          mobileSection === item.to ? null : item.to,
+                        )
+                      }
+                      aria-expanded={mobileSection === item.to}
+                      aria-label={`${item.label} alt menüsü`}
+                      className="-mr-2 p-4"
+                    >
+                      <ChevronDown
+                        className={cn(
+                          'h-4 w-4 text-muted-foreground transition-transform',
+                          mobileSection === item.to && 'rotate-180',
+                        )}
+                      />
+                    </button>
+                  </div>
                   {mobileSection === item.to ? (
                     <div className="pb-3">
                       {item.children.map((child) => (

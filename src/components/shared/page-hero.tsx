@@ -1,15 +1,23 @@
+import { Logo } from '#/components/layout/logo'
 import { cn } from '#/lib/utils'
 
 /** Alt sayfaların ortak koyu hero'su — ortalanmış kicker + başlık + intro. */
 export function PageHero({
   kicker,
+  logo = false,
   title,
   lead,
   accent,
   children,
   className,
 }: {
-  kicker: string
+  /** Başlığın üstündeki küçük etiket. logo verildiyse gerekmez. */
+  kicker?: string
+  /**
+   * Kicker yerine beyaz Luzayn logosu. Zemin zaten koyu olduğu için
+   * Logo'nun inverted biçimi kullanılır.
+   */
+  logo?: boolean
   title: string
   lead?: string
   /** Orb rengi; verilmezse marka accent'i */
@@ -45,12 +53,16 @@ export function PageHero({
       />
 
       <div className="container relative mx-auto max-w-3xl px-4 text-center">
-        <span
-          className="text-xs font-semibold uppercase tracking-[0.35em]"
-          style={{ color: accent }}
-        >
-          <span className={accent ? undefined : 'text-accent'}>{kicker}</span>
-        </span>
+        {logo ? (
+          <Logo inverted className="mx-auto h-9 w-auto md:h-11" />
+        ) : kicker ? (
+          <span
+            className="text-xs font-semibold uppercase tracking-[0.35em]"
+            style={{ color: accent }}
+          >
+            <span className={accent ? undefined : 'text-accent'}>{kicker}</span>
+          </span>
+        ) : null}
         <h1 className="mt-5 text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
           {title}
         </h1>

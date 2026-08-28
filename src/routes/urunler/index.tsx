@@ -29,7 +29,7 @@ function ProductsPage() {
   return (
     <div className="bg-[#0a0a12]">
       <PageHero
-        kicker={SITE.name}
+        logo
         title="Sekiz formül, tek seri."
         lead="Her ürünün bileşenleri, miktarları ve iddiasının hangi bileşene dayandığı ayrı ayrı yazılıdır. Ne eksik ne fazla."
       />
